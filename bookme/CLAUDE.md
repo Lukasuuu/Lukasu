@@ -55,6 +55,8 @@ Ver auditoria inicial em `docs/audit-2026-05-01.md`.
 | FASE 0 — Auditoria | Completo | PR #2 |
 | FASE 1 — Frontend Elite | Completo | PR #3 (Draft) |
 | FASE 4 — Infra/CI/CD | Completo | Em `feat/phase-5-compliance` |
+| FASE 2 — Backend NestJS | Completo | `feat/phase-2-backend-nestjs` |
+| FASE 3 — Mobile Expo | Completo | `feat/phase-3-mobile-expo` |
 | FASE 5 — Compliance | Completo | PR #4 (Draft) |
 | FASE 6 — Testes | Completo | PR #4 |
 | FASE 7 — Documentacao | Completo | Em `feat/phase-5-compliance` |
@@ -68,10 +70,8 @@ Ver auditoria inicial em `docs/audit-2026-05-01.md`.
 - **FASE 7:** README, architecture.md, runbook.md, onboarding-dev.md, launch checklist issue (#5)
 
 ### Gaps remanescentes
-- FASE 2: NestJS + Prisma backend (nao iniciado)
-- FASE 3: Mobile Expo (nao iniciado)
-- Backend monolitico (ainda Express.js unico ficheiro)
-- Sem ORM (ainda usa Supabase client diretamente)
+- Integrar frontend com API NestJS (substituir server/index.ts)
+- Implementar telas mobile restantes (calendário, pagamentos)
 - Lighthouse CI nao configurado
 - axe-core nao configurado
 
@@ -85,9 +85,10 @@ frontend-design, playwright, typescript-lsp, code-review, feature-dev, session-r
 | Componente | Tecnologia |
 |---|---|
 | Frontend | React 19 + Vite + TypeScript + TailwindCSS v4 |
-| Backend | Express.js (server/index.ts) |
-| Base de dados | Supabase (PostgreSQL + RLS) |
-| Auth | Supabase Auth |
+| Backend | NestJS 11 + Prisma + PostgreSQL + Redis |
+| Mobile | Expo SDK 52 + React Native 0.76 + NativeWind v4 |
+| Base de dados | Supabase (PostgreSQL + RLS) / Prisma ORM |
+| Auth | Supabase Auth + JWT (NestJS) |
 | Pagamentos | Stripe (Checkout + Webhooks + Portal) |
 | Email | Resend API |
 | WhatsApp | Twilio API |
@@ -102,11 +103,13 @@ frontend-design, playwright, typescript-lsp, code-review, feature-dev, session-r
 ## COMANDOS ESSENCIAIS
 
 ```bash
-pnpm install          # Instalar dependências
-pnpm dev              # Servidor de desenvolvimento (porta 3000)
-pnpm build            # Build de produção
-pnpm check            # Verificar TypeScript
-pnpm format           # Formatar código
+pnpm install                   # Instalar dependências monorepo
+pnpm --filter bookme dev       # Web frontend (porta 3000)
+pnpm --filter @bookme/api start:dev  # Backend NestJS (porta 4000)
+pnpm --filter @bookme/mobile start   # Mobile Expo
+pnpm build                     # Build de produção web
+pnpm check                     # Verificar TypeScript
+pnpm format                    # Formatar código
 
 # Verificar todas as credenciais e APIs:
 node scripts/verify-env.js
@@ -120,10 +123,21 @@ bash scripts/setup.sh
 
 ---
 
-## ESTRUTURA DO PROJETO
+## ESTRUTURA DO PROJETO (Monorepo)
 
 ```
-bookme/
+bookme-repo/
+├── apps/
+│   ├── api/                # NestJS + Prisma backend
+│   │   ├── src/            # 16 modules (auth, bookings, payments...)
+│   │   ├── prisma/         # Schema + migrations
+│   │   └── docker-compose.yml
+│   └── mobile/             # Expo React Native app
+│       ├── app/            # Expo Router screens
+│       └── src/            # Components, hooks, stores
+├── bookme/                 # Frontend web (React 19 + Vite)
+│   ├── client/
+│   └── server/
 ├── client/
 │   ├── index.html                    # HTML principal (PWA meta tags, JSON-LD SEO)
 │   ├── public/
