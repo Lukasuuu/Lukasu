@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase, Profile, Business } from '@/lib/supabase';
 
@@ -20,43 +20,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Profile | null>(null);
   const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
+  const initialCheckDone = useRef(false);
+  const lastSessionToken = useRef<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchProfileAndBusiness = async (session: Session) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (!isMounted) return;
+
+      if (profile) {
+        setUser(profile);
+        if (profile.business_id) {
+          const { data: businessData } = await supabase
+            .from('businesses')
+            .select('*')
+            .eq('id', profile.business_id)
+            .single();
+          if (isMounted && businessData) {
+            setBusiness(businessData);
+          }
+        } else {
+          setBusiness(null);
+        }
+      } else {
+        setUser(null);
+        setBusiness(null);
+      }
+    };
+
     // Check current session
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+
         setSession(session);
+        lastSessionToken.current = session?.access_token || null;
 
         if (session) {
-          // Fetch user profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profile) {
-            setUser(profile);
-
-            // Fetch business if user has one
-            if (profile.business_id) {
-              const { data: businessData } = await supabase
-                .from('businesses')
-                .select('*')
-                .eq('id', profile.business_id)
-                .single();
-
-              if (businessData) {
-                setBusiness(businessData);
-              }
-            }
-          }
+          await fetchProfileAndBusiness(session);
+        } else {
+          setUser(null);
+          setBusiness(null);
         }
       } catch (error) {
         console.error('Error checking session:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          initialCheckDone.current = true;
+        }
       }
     };
 
@@ -65,30 +85,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!isMounted) return;
+
+        const newToken = session?.access_token || null;
+        // Always process SIGNED_IN events; skip only redundant TOKEN_REFRESHED
+        const isRedundant = initialCheckDone.current && newToken === lastSessionToken.current && (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION');
+        if (isRedundant) {
+          return;
+        }
+        lastSessionToken.current = newToken;
         setSession(session);
 
         if (session) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profile) {
-            setUser(profile);
-
-            if (profile.business_id) {
-              const { data: businessData } = await supabase
-                .from('businesses')
-                .select('*')
-                .eq('id', profile.business_id)
-                .single();
-
-              if (businessData) {
-                setBusiness(businessData);
-              }
-            }
-          }
+          await fetchProfileAndBusiness(session);
         } else {
           setUser(null);
           setBusiness(null);
@@ -96,7 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    return () => subscription?.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, businessName: string) => {
@@ -148,17 +160,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Sign in error:', error);
-      throw error;
-    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    // onAuthStateChange (SIGNED_IN) will fetch profile/business
   };
 
   const signOut = async () => {
@@ -186,19 +193,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const value = useMemo(
+    () => ({
+      session,
+      user,
+      business,
+      loading,
+      signUp,
+      signIn,
+      signOut,
+      resetPassword,
+    }),
+    [session, user, business, loading]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        user,
-        business,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-        resetPassword,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

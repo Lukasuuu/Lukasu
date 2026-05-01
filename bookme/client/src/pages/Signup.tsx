@@ -172,7 +172,7 @@ export default function Signup() {
 
         <div className="mt-6 text-center">
           <p className="text-foreground/70">
-            J�� tem conta?{' '}
+            Já tem conta?{' '}
             <a href="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
               Fazer Login
             </a>

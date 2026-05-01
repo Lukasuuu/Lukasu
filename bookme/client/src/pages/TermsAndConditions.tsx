@@ -17,11 +17,11 @@ export default function TermsAndConditions() {
             <section>
               <h2 className="text-2xl font-bold text-white mb-4">1. Identificação do Prestador</h2>
               <div className="bg-card border border-border rounded-lg p-4 text-sm space-y-1">
-                <p><strong className="text-foreground/90">Designação:</strong> [NOME_EMPRESA]</p>
-                <p><strong className="text-foreground/90">NIF:</strong> [NIF]</p>
-                <p><strong className="text-foreground/90">Morada fiscal:</strong> [MORADA_FISCAL]</p>
-                <p><strong className="text-foreground/90">Email:</strong> <a href="mailto:[EMAIL_CONTACTO]" className="text-blue-400">[EMAIL_CONTACTO]</a></p>
-                <p><strong className="text-foreground/90">Telefone:</strong> [TELEFONE]</p>
+                <p><strong className="text-foreground/90">Designação:</strong> BookMe Portugal</p>
+                <p><strong className="text-foreground/90">NIF:</strong> 123456789</p>
+                <p><strong className="text-foreground/90">Morada fiscal:</strong> Portugal</p>
+                <p><strong className="text-foreground/90">Email:</strong> <a href="mailto:contacto@bookme.pt" className="text-blue-400">contacto@bookme.pt</a></p>
+                <p><strong className="text-foreground/90">Telefone:</strong> +351 932 349 452</p>
               </div>
             </section>
 
@@ -60,13 +60,14 @@ export default function TermsAndConditions() {
                 <li>O Utilizador deve ter pelo menos 18 anos de idade ou capacidade legal para celebrar contratos</li>
                 <li>É permitida apenas uma conta por pessoa ou negócio</li>
                 <li>O Utilizador é responsável pela confidencialidade das suas credenciais de acesso</li>
-                <li>Qualquer acesso não autorizado deve ser comunicado imediatamente para [EMAIL_CONTACTO]</li>
+                <li>Qualquer acesso não autorizado deve ser comunicado imediatamente para contacto@bookme.pt</li>
+                <li>Ao registar-se, o Utilizador pode optar por um período de experiência de 14 dias em qualquer plano pago</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-bold text-white mb-4">5. Planos e Preços</h2>
-              <p className="mb-4">Todos os preços incluem IVA à taxa legal em vigor (23%).</p>
+              <p className="mb-4">Todos os planos pagos incluem um período de experiência de 14 dias grátis. Após o trial, os preços incluem IVA à taxa legal em vigor (23%).</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead>
@@ -79,11 +80,10 @@ export default function TermsAndConditions() {
                   </thead>
                   <tbody>
                     {[
-                      ['Grátis', '€0/mês', '€0', '€0'],
-                      ['Pro Mensal', '€14,90/mês', '€12,11', '€2,79'],
-                      ['Business Mensal', '€29,90/mês', '€24,31', '€5,59'],
-                      ['Pro Anual', '€149,00/ano', '€121,14', '€27,86'],
-                      ['Business Anual', '€299,00/ano', '€243,09', '€55,91'],
+                      ['Pro Mensal', '€29/mês', '€23,58', '€5,42'],
+                      ['Business Mensal', '€59/mês', '€47,97', '€11,03'],
+                      ['Pro Anual', '€290/ano', '€235,77', '€54,23'],
+                      ['Business Anual', '€590/ano', '€479,67', '€110,33'],
                     ].map(([plan, total, net, vat], i) => (
                       <tr key={i} className="border-b border-border/50">
                         <td className="py-2 pr-4 text-foreground/90 font-medium">{plan}</td>
@@ -98,8 +98,11 @@ export default function TermsAndConditions() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-white mb-4">6. Pagamento</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">6. Pagamento e Período de Experiência</h2>
               <ul className="list-disc list-inside space-y-2 ml-2">
+                <li>Todos os planos pagos incluem um <strong>período de experiência de 14 dias grátis</strong></li>
+                <li>Durante o trial, o cartão não é cobrado e o Utilizador pode cancelar sem qualquer custo</li>
+                <li>Após os 14 dias, o cartão é cobrado automaticamente pelo valor do plano escolhido</li>
                 <li>Os pagamentos são processados de forma segura pelo Stripe</li>
                 <li>Métodos aceites: cartão de crédito/débito Visa, Mastercard, American Express; SEPA Direct Debit</li>
                 <li>A faturação é efetuada no início de cada período (mensal ou anual) conforme o plano</li>
@@ -109,23 +112,24 @@ export default function TermsAndConditions() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-white mb-4">7. Direito de Arrependimento</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">7. Período de Experiência (Trial)</h2>
               <p className="mb-3">
-                Nos termos do Decreto-Lei n.º 24/2014, de 14 de fevereiro (contratos celebrados à distância),
-                o Utilizador tem direito a resolver o contrato no prazo de <strong className="text-white">14 dias</strong> a
-                contar da data da celebração, sem necessidade de indicar qualquer motivo.
+                Todos os planos pagos incluem um <strong className="text-white">período de experiência de 14 dias grátis</strong>,
+                durante o qual o Utilizador pode usar todas as funcionalidades do plano escolhido sem qualquer custo.
               </p>
               <p className="mb-3">
-                Para exercer este direito, envie email para{' '}
-                <a href="mailto:[EMAIL_CONTACTO]" className="text-blue-400 hover:text-blue-300">[EMAIL_CONTACTO]</a>{' '}
-                com o assunto <em>"Pretendo exercer o direito de arrependimento"</em>, indicando o nome, email e data
-                da subscrição. O reembolso será efetuado no prazo de 14 dias após receção da comunicação.
+                Durante o trial, o Utilizador pode cancelar a qualquer momento sem qualquer custo ou compromisso.
+                Não é necessário indicar motivo para o cancelamento durante o período de experiência.
               </p>
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm">
-                <strong className="text-amber-400">⚠️ Exceção importante:</strong> Ao subscrever um plano pago, é apresentado
-                um checkbox de confirmação onde o Utilizador consente expressamente no início imediato do serviço e reconhece
-                que, ao fazê-lo, perde o direito de arrependimento após o início efetivo da utilização, nos termos do
-                Art. 17.º, n.º 1, alínea a) do Decreto-Lei n.º 24/2014.
+              <p className="mb-3">
+                Para cancelar durante o trial, aceda ao Stripe Customer Portal ou envie email para{' '}
+                <a href="mailto:contacto@bookme.pt" className="text-blue-400 hover:text-blue-300">contacto@bookme.pt</a>
+                com o assunto <em>"Cancelar trial"</em>.
+              </p>
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-sm">
+                <strong className="text-green-400">✓ Sem surpresas:</strong> Após os 14 dias de trial, a subscrição é
+                renovada automaticamente e cobrada pelo plano escolhido. O Utilizador será notificado por email
+                3 dias antes do fim do trial com a opção de cancelar.
               </div>
             </section>
 
@@ -186,7 +190,7 @@ export default function TermsAndConditions() {
                 <a href="/privacy-policy" className="text-blue-400 hover:text-blue-300">Política de Privacidade</a>.
                 O BookMe atua como responsável pelo tratamento dos dados dos Utilizadores e como subcontratante
                 para os dados dos Clientes Finais. Um Acordo de Processamento de Dados (DPA) está disponível
-                mediante pedido para [EMAIL_CONTACTO].
+                mediante pedido para contacto@bookme.pt.
               </p>
             </section>
 
@@ -229,7 +233,7 @@ export default function TermsAndConditions() {
               <h2 className="text-2xl font-bold text-white mb-4">17. Lei Aplicável e Foro</h2>
               <p>
                 Estes Termos e Condições são regidos pela lei portuguesa. Para efeitos de resolução de
-                litígios, é competente o Tribunal da Comarca de [CIDADE], sem prejuízo das normas
+                litígios, é competente o Tribunal da Comarca de Lisboa, sem prejuízo das normas
                 imperativas de proteção dos consumidores.
               </p>
             </section>

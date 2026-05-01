@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePlan } from '@/hooks/usePlan';
@@ -36,6 +36,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     navigate('/');
   };
 
+  const handleNav = useCallback(
+    (href: string) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      navigate(href);
+    },
+    [navigate]
+  );
+
   const badge = PLAN_BADGES[plan] || PLAN_BADGES.free;
 
   return (
@@ -47,14 +55,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="h-16 border-b border-border flex items-center justify-between px-4 gap-2">
           {sidebarOpen && (
-            <a href="/dashboard" className="flex items-center gap-2">
+            <button onClick={handleNav('/dashboard')} className="flex items-center gap-2">
               <div className="w-7 h-7 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">B</span>
               </div>
               <span className="text-base font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                 BookMe
               </span>
-            </a>
+            </button>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -72,10 +80,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {badge.label}
               </span>
               {plan === 'free' && (
-                <a href="/dashboard/billing" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                <button onClick={handleNav('/dashboard/billing')} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
                   <Zap size={10} />
                   Upgrade
-                </a>
+                </button>
               )}
             </div>
           </div>
@@ -87,11 +95,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             const Icon = item.icon;
             const isActive = location === item.href || (item.href !== '/dashboard' && location.startsWith(item.href));
             return (
-              <a
+              <button
                 key={item.href}
-                href={item.href}
+                onClick={handleNav(item.href)}
                 title={!sidebarOpen ? item.label : undefined}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium text-left ${
                   isActive
                     ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20'
                     : 'text-foreground/60 hover:text-foreground hover:bg-background'
@@ -99,7 +107,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 <Icon size={18} className="flex-shrink-0" />
                 {sidebarOpen && <span>{item.label}</span>}
-              </a>
+              </button>
             );
           })}
         </nav>

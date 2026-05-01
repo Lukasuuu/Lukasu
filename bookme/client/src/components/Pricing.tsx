@@ -11,39 +11,28 @@ import { Check } from "lucide-react";
 export default function Pricing() {
   const plans = [
     {
-      name: "Grátis",
-      price: "€0",
-      period: "/mês",
-      description: "Perfeito para começar",
-      features: [
-        "Marcações ilimitadas",
-        "1 membro de staff",
-        "Confirmações por email",
-        "Página de booking pública",
-        "Suporte por email",
-      ],
-      highlighted: false,
-    },
-    {
       name: "Pro",
-      price: "€14.90",
+      price: "€29",
       period: "/mês",
+      trial: "14 dias grátis",
       description: "Para negócios em crescimento",
       features: [
-        "Tudo do plano Grátis",
+        "Marcações ilimitadas",
         "Notificações WhatsApp & Telegram",
         "Widget de reservas",
         "Lista de espera",
         "Marcações recorrentes",
         "Campanhas de marketing",
         "Até 5 membros de staff",
+        "Suporte por email",
       ],
       highlighted: true,
     },
     {
       name: "Business",
-      price: "€29.90",
+      price: "€59",
       period: "/mês",
+      trial: "14 dias grátis",
       description: "Para empresas estabelecidas",
       features: [
         "Tudo do plano Pro",
@@ -59,11 +48,7 @@ export default function Pricing() {
   ];
 
   const handleCheckout = (planName: string) => {
-    if (planName === 'Grátis') {
-      window.location.href = '/signup';
-    } else {
-      window.location.href = '/dashboard/billing';
-    }
+    window.location.href = '/signup';
   };
 
   return (
@@ -85,7 +70,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
@@ -141,10 +126,11 @@ export default function Pricing() {
                     {plan.period}
                   </span>
                 </div>
-                {plan.price !== '€0' && (
-                  <p className="text-xs text-foreground/50 mb-6">IVA incluído (23%)</p>
-                )}
-                {plan.price === '€0' && <div className="mb-6" />}
+                <p className="text-xs text-foreground/50 mb-2">IVA incluído (23%)</p>
+                <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                  <span className="text-xs text-green-400 font-medium">{plan.trial}</span>
+                </div>
 
                 {/* CTA Button */}
                 <Button

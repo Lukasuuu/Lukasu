@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
 import { supabase, Client } from '@/lib/supabase';
 import { Search, Plus, Edit2, Trash2, Mail, Phone } from 'lucide-react';
+import ClientModal from '@/components/modals/ClientModal';
 
 /**
  * Clients Management Page
@@ -15,6 +16,9 @@ export default function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | undefined>(undefined);
 
   useEffect(() => {
     if (!business || !session) return;
@@ -61,6 +65,44 @@ export default function Clients() {
     }
   };
 
+  const handleSaveClient = async (clientData: Partial<Client>) => {
+    if (!business) return;
+    setModalLoading(true);
+
+    if (editingClient) {
+      const { error } = await supabase.from('clients').update(clientData).eq('id', editingClient.id);
+      setModalLoading(false);
+      if (error) throw error;
+      setClients(clients.map((c) => (c.id === editingClient.id ? { ...c, ...clientData } : c)));
+      if (selectedClient?.id === editingClient.id) {
+        setSelectedClient({ ...selectedClient, ...clientData });
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('clients')
+        .insert({ ...clientData, business_id: business.id, total_bookings: 0, total_spent: 0 })
+        .select()
+        .single();
+      setModalLoading(false);
+      if (error) throw error;
+      if (data) setClients([data, ...clients]);
+    }
+
+    setEditingClient(undefined);
+  };
+
+  const openCreateModal = () => {
+    setEditingClient(undefined);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = () => {
+    if (selectedClient) {
+      setEditingClient(selectedClient);
+      setIsModalOpen(true);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -70,7 +112,10 @@ export default function Clients() {
             <h2 className="text-3xl font-bold text-white mb-2">Clientes</h2>
             <p className="text-foreground/70">Gerencie sua base de clientes</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
             <Plus size={20} />
             Novo Cliente
           </button>
@@ -172,7 +217,10 @@ export default function Clients() {
                 )}
 
                 <div className="flex gap-2 pt-4">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                  <button
+                    onClick={openEditModal}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  >
                     <Edit2 size={18} />
                     Editar
                   </button>
@@ -189,6 +237,16 @@ export default function Clients() {
           )}
         </div>
       </div>
+      <ClientModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingClient(undefined);
+        }}
+        onSave={handleSaveClient}
+        initialData={editingClient}
+        isLoading={modalLoading}
+      />
     </DashboardLayout>
   );
 }

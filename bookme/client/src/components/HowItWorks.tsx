@@ -30,7 +30,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section className="relative py-20 md:py-32 bg-gradient-to-b from-background via-background/95 to-background overflow-hidden">
+    <section id="how-it-works" className="relative py-20 md:py-32 bg-gradient-to-b from-background via-background/95 to-background overflow-hidden">
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-16">

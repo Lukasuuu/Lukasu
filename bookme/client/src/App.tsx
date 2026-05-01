@@ -1,31 +1,38 @@
+import { Suspense, lazy } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import NotFound from '@/pages/NotFound';
-import { Route, Switch } from 'wouter';
+import { Route, Switch, useLocation } from 'wouter';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { OnboardingProvider } from './contexts/OnboardingContext';
 import OnboardingWizard from './components/OnboardingWizard';
 import CookieConsent from './components/CookieConsent';
+
+// Eagerly load critical pages
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
-import Calendar from './pages/Calendar';
-import Clients from './pages/Clients';
-import Services from './pages/Services';
-import Staff from './pages/Staff';
-import Settings from './pages/Settings';
-import Billing from './pages/Billing';
-import Reports from './pages/Reports';
-import CheckoutSuccess from './pages/CheckoutSuccess';
-import CheckoutCancel from './pages/CheckoutCancel';
-import PublicBooking from './pages/PublicBooking';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsAndConditions from './pages/TermsAndConditions';
-import About from './pages/About';
-import Contact from './pages/Contact';
+import NotFound from './pages/NotFound';
+
+// Lazy load all other pages to reduce initial bundle size
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Clients = lazy(() => import('./pages/Clients'));
+const Services = lazy(() => import('./pages/Services'));
+const Staff = lazy(() => import('./pages/Staff'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Billing = lazy(() => import('./pages/Billing'));
+const Reports = lazy(() => import('./pages/Reports'));
+const CheckoutSuccess = lazy(() => import('./pages/CheckoutSuccess'));
+const CheckoutCancel = lazy(() => import('./pages/CheckoutCancel'));
+const PublicBooking = lazy(() => import('./pages/PublicBooking'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 function LoadingScreen() {
   return (
@@ -38,13 +45,18 @@ function LoadingScreen() {
   );
 }
 
+function PageLoader({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<LoadingScreen />}>{children}</Suspense>;
+}
+
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { session, loading } = useAuth();
+  const [, navigate] = useLocation();
 
   if (loading) return <LoadingScreen />;
 
   if (!session) {
-    window.location.href = '/login';
+    navigate('/login');
     return null;
   }
 
@@ -58,15 +70,36 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
-      <Route path="/about" component={About} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/privacy-policy" component={PrivacyPolicy} />
-      <Route path="/terms-and-conditions" component={TermsAndConditions} />
-      <Route path="/book/:businessSlug" component={PublicBooking} />
+      <Route path="/about">
+        <PageLoader><About /></PageLoader>
+      </Route>
+      <Route path="/contact">
+        <PageLoader><Contact /></PageLoader>
+      </Route>
+      <Route path="/privacy-policy">
+        <PageLoader><PrivacyPolicy /></PageLoader>
+      </Route>
+      <Route path="/terms-and-conditions">
+        <PageLoader><TermsAndConditions /></PageLoader>
+      </Route>
+      <Route path="/book/:businessSlug">
+        <PageLoader><PublicBooking /></PageLoader>
+      </Route>
+
+      <Route path="/forgot-password">
+        <PageLoader><ForgotPassword /></PageLoader>
+      </Route>
+      <Route path="/reset-password">
+        <PageLoader><ResetPassword /></PageLoader>
+      </Route>
 
       {/* Checkout */}
-      <Route path="/checkout/success" component={CheckoutSuccess} />
-      <Route path="/checkout/cancel" component={CheckoutCancel} />
+      <Route path="/checkout/success">
+        <PageLoader><CheckoutSuccess /></PageLoader>
+      </Route>
+      <Route path="/checkout/cancel">
+        <PageLoader><CheckoutCancel /></PageLoader>
+      </Route>
 
       {/* Protected */}
       <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />

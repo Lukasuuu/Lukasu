@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
+
+// Preload Dashboard chunk for faster post-login navigation
+const preloadDashboard = () => {
+  import('@/pages/Dashboard');
+  import('@/pages/Calendar');
+  import('@/pages/Clients');
+};
 
 /**
  * Login Page Component
@@ -15,6 +22,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const [, navigate] = useLocation();
+
+  // Preload dashboard chunks once user starts typing
+  useEffect(() => {
+    if (email.length > 3 || password.length > 3) {
+      preloadDashboard();
+    }
+  }, [email, password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,9 +110,13 @@ export default function Login() {
 
           {/* Forgot Password Link */}
           <div className="text-right">
-            <a href="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+            >
               Esqueceu a senha?
-            </a>
+            </button>
           </div>
 
           {/* Submit Button */}
@@ -115,17 +133,25 @@ export default function Login() {
         <div className="mt-6 text-center">
           <p className="text-foreground/70">
             Não tem conta?{' '}
-            <a href="/signup" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+            <button
+              type="button"
+              onClick={() => navigate('/signup')}
+              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+            >
               Registar-se
-            </a>
+            </button>
           </p>
         </div>
 
         {/* Back to Landing */}
         <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
+          >
             ← Voltar à página inicial
-          </a>
+          </button>
         </div>
       </div>
     </div>

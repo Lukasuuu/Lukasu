@@ -22,11 +22,11 @@ export default function Footer() {
             </p>
             {/* Legal Company Info */}
             <div className="text-xs text-foreground/50 space-y-0.5 border-t border-border/50 pt-4">
-              <p className="font-medium text-foreground/60">[NOME_EMPRESA]</p>
-              <p>NIF: [NIF]</p>
-              <p>[MORADA_FISCAL]</p>
-              <a href="mailto:[EMAIL_CONTACTO]" className="text-blue-400/70 hover:text-blue-400 transition-colors">
-                [EMAIL_CONTACTO]
+              <p className="font-medium text-foreground/60">BookMe Portugal</p>
+              <p>NIF: 123456789</p>
+              <p>Portugal</p>
+              <a href="mailto:contacto@bookme.pt" className="text-blue-400/70 hover:text-blue-400 transition-colors">
+                contacto@bookme.pt
               </a>
             </div>
           </div>
@@ -53,7 +53,7 @@ export default function Footer() {
               <li><a href="/terms-and-conditions" className="text-foreground/70 hover:text-foreground transition-colors text-sm">Termos e Condições</a></li>
               <li>
                 <button
-                  onClick={() => localStorage.removeItem('bookme_cookie_prefs') || window.location.reload()}
+                  onClick={() => { localStorage.removeItem('bookme_cookie_prefs'); window.location.reload(); }}
                   className="text-foreground/70 hover:text-foreground transition-colors text-sm text-left"
                 >
                   Gerir Cookies
@@ -67,13 +67,13 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4">Contacto</h4>
             <div className="space-y-3">
               <a
-                href="mailto:[EMAIL_CONTACTO]"
+                href="mailto:contacto@bookme.pt"
                 className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors text-sm"
               >
                 <Mail size={16} />
-                [EMAIL_CONTACTO]
+                contacto@bookme.pt
               </a>
-              <p className="text-foreground/60 text-sm">[TELEFONE]</p>
+              <p className="text-foreground/60 text-sm">+351 932 349 452</p>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-foreground/60 text-sm">
-            &copy; {currentYear} BookMe — [NOME_EMPRESA] · NIF [NIF] · Todos os direitos reservados.
+            &copy; {currentYear} BookMe — BookMe Portugal · NIF 123456789 · Todos os direitos reservados.
           </p>
 
           {/* Social Media */}

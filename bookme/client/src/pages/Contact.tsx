@@ -33,9 +33,9 @@ export default function Contact() {
   };
 
   const contactInfo = [
-    { icon: Mail, label: 'Email', value: '[EMAIL_CONTACTO]', href: 'mailto:[EMAIL_CONTACTO]' },
-    { icon: Phone, label: 'Telefone', value: '[TELEFONE]', href: 'tel:[TELEFONE]' },
-    { icon: MapPin, label: 'Morada', value: '[MORADA_FISCAL]', href: undefined },
+    { icon: Mail, label: 'Email', value: 'contacto@bookme.pt', href: 'mailto:contacto@bookme.pt' },
+    { icon: Phone, label: 'Telefone', value: '+351 932 349 452', href: 'tel:+351932349452' },
+    { icon: MapPin, label: 'Morada', value: 'Portugal', href: undefined },
   ];
 
   return (

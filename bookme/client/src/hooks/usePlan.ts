@@ -67,8 +67,8 @@ const PLAN_LIMITS: Record<Plan, PlanLimits> = {
 };
 
 export function usePlan() {
-  const { profile } = useAuth() as any;
-  const plan: Plan = (profile?.plan as Plan) || 'free';
+  const { user } = useAuth() as any;
+  const plan: Plan = (user?.plan as Plan) || 'free';
   const limits = PLAN_LIMITS[plan];
 
   const hasFeature = (feature: keyof PlanLimits): boolean => {

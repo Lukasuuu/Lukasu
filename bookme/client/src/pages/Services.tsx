@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
 import { supabase, Service } from '@/lib/supabase';
 import { Plus, Edit2, Trash2, Clock, Euro } from 'lucide-react';
+import ServiceModal from '@/components/modals/ServiceModal';
 
 /**
  * Services Management Page
@@ -13,6 +14,9 @@ export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [editingService, setEditingService] = useState<Service | undefined>(undefined);
 
   useEffect(() => {
     if (!business || !session) return;
@@ -65,6 +69,42 @@ export default function Services() {
     }
   };
 
+  const handleSaveService = async (serviceData: Partial<Service>) => {
+    if (!business) return;
+    setModalLoading(true);
+
+    if (editingService) {
+      const { error } = await supabase.from('services').update(serviceData).eq('id', editingService.id);
+      setModalLoading(false);
+      if (error) throw error;
+      setServices(services.map((s) => (s.id === editingService.id ? { ...s, ...serviceData } : s)));
+      if (selectedService?.id === editingService.id) {
+        setSelectedService({ ...selectedService, ...serviceData });
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('services')
+        .insert({ ...serviceData, business_id: business.id, active: true })
+        .select()
+        .single();
+      setModalLoading(false);
+      if (error) throw error;
+      if (data) setServices([data, ...services]);
+    }
+
+    setEditingService(undefined);
+  };
+
+  const openCreateModal = () => {
+    setEditingService(undefined);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (service: Service) => {
+    setEditingService(service);
+    setIsModalOpen(true);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -74,7 +114,10 @@ export default function Services() {
             <h2 className="text-3xl font-bold text-white mb-2">Serviços</h2>
             <p className="text-foreground/70">Gerencie os serviços oferecidos</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
             <Plus size={20} />
             Novo Serviço
           </button>
@@ -139,7 +182,13 @@ export default function Services() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditModal(service);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors"
+                  >
                     <Edit2 size={16} />
                     Editar
                   </button>
@@ -163,6 +212,16 @@ export default function Services() {
           )}
         </div>
       </div>
+      <ServiceModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingService(undefined);
+        }}
+        onSave={handleSaveService}
+        initialData={editingService}
+        isLoading={modalLoading}
+      />
     </DashboardLayout>
   );
 }

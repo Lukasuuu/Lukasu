@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
-import { supabase } from '@/lib/supabase';
+import { supabase, Client, Service, Staff } from '@/lib/supabase';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import BookingModal from '@/components/modals/BookingModal';
 
 /**
  * Calendar Page Component
@@ -14,6 +15,17 @@ export default function Calendar() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [staff, setStaff] = useState<Staff[]>([]);
+
+  // Memoize month/year to prevent infinite re-renders
+  const monthYear = useMemo(
+    () => `${currentDate.getFullYear()}-${currentDate.getMonth()}`,
+    [currentDate.getFullYear(), currentDate.getMonth()]
+  );
 
   useEffect(() => {
     if (!business || !session) return;
@@ -48,8 +60,64 @@ export default function Calendar() {
       }
     };
 
+    const fetchOptions = async () => {
+      const [{ data: clientsData }, { data: servicesData }, { data: staffData }] = await Promise.all([
+        supabase.from('clients').select('*').eq('business_id', business.id).order('name'),
+        supabase.from('services').select('*').eq('business_id', business.id).order('name'),
+        supabase.from('staff').select('*').eq('business_id', business.id).order('name'),
+      ]);
+      setClients(clientsData || []);
+      setServices(servicesData || []);
+      setStaff(staffData || []);
+    };
+
     fetchBookings();
-  }, [business, session, currentDate]);
+    fetchOptions();
+  }, [business, session, monthYear]);
+
+  const handleSaveBooking = async (booking: {
+    client_id: string;
+    service_id: string;
+    staff_id: string;
+    booking_date: string;
+    start_time: string;
+    notes?: string;
+  }) => {
+    if (!business) return;
+    setModalLoading(true);
+
+    const service = services.find((s) => s.id === booking.service_id);
+    const endTimeDate = new Date(`2000-01-01T${booking.start_time}`);
+    endTimeDate.setMinutes(endTimeDate.getMinutes() + (service?.duration_min || 60));
+    const end_time = endTimeDate.toTimeString().slice(0, 5);
+
+    const { error } = await supabase.from('bookings').insert({
+      ...booking,
+      business_id: business.id,
+      end_time,
+      status: 'confirmed',
+      price: service?.price || 0,
+    });
+
+    setModalLoading(false);
+    if (error) throw error;
+
+    // Refresh bookings
+    const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+      .toISOString()
+      .split('T')[0];
+    const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+      .toISOString()
+      .split('T')[0];
+    const { data } = await supabase
+      .from('bookings')
+      .select(`*, clients(name, email), services(name, color), staff(name)`)
+      .eq('business_id', business.id)
+      .gte('booking_date', monthStart)
+      .lte('booking_date', monthEnd)
+      .order('booking_date', { ascending: true });
+    setBookings(data || []);
+  };
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -88,7 +156,10 @@ export default function Calendar() {
             <h2 className="text-3xl font-bold text-white mb-2">Calendário</h2>
             <p className="text-foreground/70">Gerencie suas marcações</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
             <Plus size={20} />
             Nova Marcação
           </button>
@@ -207,6 +278,15 @@ export default function Calendar() {
           )}
         </div>
       </div>
+      <BookingModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveBooking}
+        clients={clients}
+        services={services}
+        staff={staff}
+        isLoading={modalLoading}
+      />
     </DashboardLayout>
   );
 }

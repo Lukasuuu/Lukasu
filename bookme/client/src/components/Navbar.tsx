@@ -1,17 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
-/**
- * Navbar Component
- * Design: Dark theme with gradient accents
- * - Logo "BookMe" on the left
- * - Navigation links (Funcionalidades, Preços, FAQ)
- * - CTA button "Comece Grátis"
- * - Mobile menu toggle
- */
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [, navigate] = useLocation();
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -60,7 +54,7 @@ export default function Navbar() {
         <div className="hidden md:flex">
           <Button
             className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
-            onClick={() => scrollToSection("cta")}
+            onClick={() => navigate("/signup")}
           >
             Comece Grátis
           </Button>
@@ -99,7 +93,7 @@ export default function Navbar() {
             </button>
             <Button
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
-              onClick={() => scrollToSection("cta")}
+              onClick={() => navigate("/signup")}
             >
               Comece Grátis
             </Button>

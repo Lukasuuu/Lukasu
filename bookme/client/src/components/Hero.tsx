@@ -1,17 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
+import { useLocation } from "wouter";
 
-/**
- * Hero Section Component
- * Design: Dark background with gradient hero image overlay
- * - Main title and subtitle
- * - Primary CTA "Comece Grátis Agora"
- * - Secondary CTA "Ver Demonstração"
- * - Background image with geometric shapes
- */
 export default function Hero() {
+  const [, navigate] = useLocation();
+
   const handleGetStarted = () => {
-    const element = document.getElementById("cta");
+    navigate("/signup");
+  };
+
+  const handleDemo = () => {
+    const element = document.getElementById("how-it-works");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
@@ -68,6 +67,7 @@ export default function Hero() {
             size="lg"
             variant="outline"
             className="border-blue-500/30 hover:bg-blue-500/10 text-white text-base px-8 py-6 rounded-lg"
+            onClick={handleDemo}
           >
             <Play size={20} className="mr-2" />
             Ver Demonstração

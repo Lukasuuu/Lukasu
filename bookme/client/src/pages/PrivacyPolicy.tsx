@@ -18,11 +18,11 @@ export default function PrivacyPolicy() {
               <h2 className="text-2xl font-bold text-white mb-4">1. Identidade do Responsável pelo Tratamento</h2>
               <p>O responsável pelo tratamento dos dados pessoais recolhidos através da plataforma BookMe é:</p>
               <div className="bg-card border border-border rounded-lg p-4 mt-3 space-y-1 text-sm">
-                <p><strong className="text-foreground/90">Designação:</strong> [NOME_EMPRESA]</p>
-                <p><strong className="text-foreground/90">NIF:</strong> [NIF]</p>
-                <p><strong className="text-foreground/90">Morada:</strong> [MORADA_FISCAL]</p>
-                <p><strong className="text-foreground/90">Email:</strong> <a href="mailto:[EMAIL_CONTACTO]" className="text-blue-400 hover:text-blue-300">[EMAIL_CONTACTO]</a></p>
-                <p><strong className="text-foreground/90">Telefone:</strong> [TELEFONE]</p>
+                <p><strong className="text-foreground/90">Designação:</strong> BookMe Portugal</p>
+                <p><strong className="text-foreground/90">NIF:</strong> 123456789</p>
+                <p><strong className="text-foreground/90">Morada:</strong> Portugal</p>
+                <p><strong className="text-foreground/90">Email:</strong> <a href="mailto:contacto@bookme.pt" className="text-blue-400 hover:text-blue-300">contacto@bookme.pt</a></p>
+                <p><strong className="text-foreground/90">Telefone:</strong> +351 932 349 452</p>
               </div>
             </section>
 
@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
               <h2 className="text-2xl font-bold text-white mb-4">2. Encarregado de Proteção de Dados (DPO)</h2>
               <p>
                 Para exercer os seus direitos ou colocar questões sobre o tratamento dos seus dados pessoais, pode contactar o nosso Encarregado de Proteção de Dados através do email:{' '}
-                <a href="mailto:[EMAIL_DPO]" className="text-blue-400 hover:text-blue-300">[EMAIL_DPO]</a>.
+                <a href="mailto:contacto@bookme.pt" className="text-blue-400 hover:text-blue-300">contacto@bookme.pt</a>.
               </p>
             </section>
 
@@ -169,7 +169,7 @@ export default function PrivacyPolicy() {
               </div>
               <p className="mt-4 text-sm">
                 Para exercer os seus direitos, envie um email para{' '}
-                <a href="mailto:[EMAIL_DPO]" className="text-blue-400 hover:text-blue-300">[EMAIL_DPO]</a>{' '}
+                <a href="mailto:contacto@bookme.pt" className="text-blue-400 hover:text-blue-300">contacto@bookme.pt</a>{' '}
                 com identificação e descrição do pedido. Respondemos no prazo máximo de 30 dias.
               </p>
             </section>
@@ -204,7 +204,7 @@ export default function PrivacyPolicy() {
                   },
                   {
                     title: 'Cookies Analíticos (apenas com consentimento)',
-                    items: ['Google Analytics — an��lise de tráfego e comportamento dos visitantes'],
+                    items: ['Google Analytics — análise de tráfego e comportamento dos visitantes'],
                     cls: 'border-blue-500/30 bg-blue-500/5',
                   },
                   {

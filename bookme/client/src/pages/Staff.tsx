@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
-import { supabase, Staff } from '@/lib/supabase';
+import { supabase, Staff, Service } from '@/lib/supabase';
 import { Plus, Edit2, Trash2, Mail, Phone, Clock } from 'lucide-react';
+import StaffModal from '@/components/modals/StaffModal';
 
 /**
  * Staff Management Page
@@ -11,21 +12,25 @@ import { Plus, Edit2, Trash2, Mail, Phone, Clock } from 'lucide-react';
 export default function StaffPage() {
   const { business, session } = useAuth();
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<Staff | undefined>(undefined);
 
   useEffect(() => {
     if (!business || !session) return;
 
     const fetchStaff = async () => {
       try {
-        const { data } = await supabase
-          .from('staff')
-          .select('*')
-          .eq('business_id', business.id)
-          .order('created_at', { ascending: false });
+        const [{ data: staffData }, { data: servicesData }] = await Promise.all([
+          supabase.from('staff').select('*').eq('business_id', business.id).order('created_at', { ascending: false }),
+          supabase.from('services').select('*').eq('business_id', business.id).order('name'),
+        ]);
 
-        setStaff(data || []);
+        setStaff(staffData || []);
+        setServices(servicesData || []);
       } catch (error) {
         console.error('Error fetching staff:', error);
       } finally {
@@ -65,6 +70,42 @@ export default function StaffPage() {
     }
   };
 
+  const handleSaveStaff = async (staffData: Partial<Staff>) => {
+    if (!business) return;
+    setModalLoading(true);
+
+    if (editingStaff) {
+      const { error } = await supabase.from('staff').update(staffData).eq('id', editingStaff.id);
+      setModalLoading(false);
+      if (error) throw error;
+      setStaff(staff.map((s) => (s.id === editingStaff.id ? { ...s, ...staffData } : s)));
+      if (selectedStaff?.id === editingStaff.id) {
+        setSelectedStaff({ ...selectedStaff, ...staffData });
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('staff')
+        .insert({ ...staffData, business_id: business.id, active: true })
+        .select()
+        .single();
+      setModalLoading(false);
+      if (error) throw error;
+      if (data) setStaff([data, ...staff]);
+    }
+
+    setEditingStaff(undefined);
+  };
+
+  const openCreateModal = () => {
+    setEditingStaff(undefined);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (member: Staff) => {
+    setEditingStaff(member);
+    setIsModalOpen(true);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -74,7 +115,10 @@ export default function StaffPage() {
             <h2 className="text-3xl font-bold text-white mb-2">Equipa</h2>
             <p className="text-foreground/70">Gerencie membros da sua equipa</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
             <Plus size={20} />
             Novo Membro
           </button>
@@ -133,11 +177,14 @@ export default function StaffPage() {
                   <div className="mb-4">
                     <p className="text-xs text-foreground/70 mb-2">Serviços ({staffMember.services.length})</p>
                     <div className="flex flex-wrap gap-1">
-                      {staffMember.services.slice(0, 3).map((service, i) => (
-                        <span key={i} className="inline-block px-2 py-1 rounded bg-blue-500/20 text-blue-300 text-xs">
-                          Serviço {i + 1}
-                        </span>
-                      ))}
+                      {staffMember.services.slice(0, 3).map((serviceId) => {
+                        const svc = services.find((s) => s.id === serviceId);
+                        return (
+                          <span key={serviceId} className="inline-block px-2 py-1 rounded bg-blue-500/20 text-blue-300 text-xs">
+                            {svc?.name || serviceId.slice(0, 6)}
+                          </span>
+                        );
+                      })}
                       {staffMember.services.length > 3 && (
                         <span className="inline-block px-2 py-1 rounded bg-blue-500/20 text-blue-300 text-xs">
                           +{staffMember.services.length - 3}
@@ -149,7 +196,13 @@ export default function StaffPage() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditModal(staffMember);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors"
+                  >
                     <Edit2 size={16} />
                     Editar
                   </button>
@@ -173,6 +226,17 @@ export default function StaffPage() {
           )}
         </div>
       </div>
+      <StaffModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingStaff(undefined);
+        }}
+        onSave={handleSaveStaff}
+        initialData={editingStaff}
+        services={services}
+        isLoading={modalLoading}
+      />
     </DashboardLayout>
   );
 }

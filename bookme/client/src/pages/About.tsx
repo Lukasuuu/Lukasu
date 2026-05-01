@@ -89,25 +89,25 @@ export default function About() {
             <dl className="space-y-3 text-sm">
               <div className="flex gap-4 py-2 border-b border-border">
                 <dt className="text-foreground/60 w-40 flex-shrink-0">Designação:</dt>
-                <dd className="text-foreground/90">[NOME_EMPRESA]</dd>
+                <dd className="text-foreground/90">BookMe Portugal</dd>
               </div>
               <div className="flex gap-4 py-2 border-b border-border">
                 <dt className="text-foreground/60 w-40 flex-shrink-0">NIF:</dt>
-                <dd className="text-foreground/90">[NIF]</dd>
+                <dd className="text-foreground/90">123456789</dd>
               </div>
               <div className="flex gap-4 py-2 border-b border-border">
                 <dt className="text-foreground/60 w-40 flex-shrink-0">Morada:</dt>
-                <dd className="text-foreground/90">[MORADA_FISCAL]</dd>
+                <dd className="text-foreground/90">Portugal</dd>
               </div>
               <div className="flex gap-4 py-2 border-b border-border">
                 <dt className="text-foreground/60 w-40 flex-shrink-0">Email:</dt>
                 <dd className="text-foreground/90">
-                  <a href="mailto:[EMAIL_CONTACTO]" className="text-blue-400 hover:text-blue-300">[EMAIL_CONTACTO]</a>
+                  <a href="mailto:contacto@bookme.pt" className="text-blue-400 hover:text-blue-300">contacto@bookme.pt</a>
                 </dd>
               </div>
               <div className="flex gap-4 py-2">
                 <dt className="text-foreground/60 w-40 flex-shrink-0">Telefone:</dt>
-                <dd className="text-foreground/90">[TELEFONE]</dd>
+                <dd className="text-foreground/90">+351 932 349 452</dd>
               </div>
             </dl>
           </div>

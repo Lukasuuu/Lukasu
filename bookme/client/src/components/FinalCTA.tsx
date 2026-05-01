@@ -1,17 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useLocation } from "wouter";
 
-/**
- * Final CTA Section Component
- * Design: Eye-catching gradient background with strong call-to-action
- * - Main CTA button
- * - Secondary text
- * - Responsive design
- */
 export default function FinalCTA() {
+  const [, navigate] = useLocation();
+
   const handleGetStarted = () => {
-    // This would redirect to signup in a real implementation
-    console.log("Get started clicked");
+    navigate("/signup");
   };
 
   return (

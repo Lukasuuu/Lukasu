@@ -64,6 +64,10 @@ async function startServer() {
         allow_promotion_codes: true,
         tax_id_collection: { enabled: true },
         metadata: { userId, planType: planType || '' },
+        subscription_data: {
+          trial_period_days: 14,
+          metadata: { userId, planType: planType || '' },
+        },
       });
 
       res.json({ url: session.url });
@@ -135,12 +139,22 @@ async function startServer() {
           const { userId, planType } = session.metadata || {};
           if (userId) {
             const plan = planType || 'pro';
+            // Fetch the subscription to determine trial status
+            let isTrial = false;
+            if (session.subscription) {
+              try {
+                const subscription = await stripe.subscriptions.retrieve(session.subscription);
+                isTrial = subscription.status === 'trialing' || (subscription.trial_start != null && subscription.trial_end != null);
+              } catch (e: any) {
+                console.error('[Stripe Webhook] Failed to retrieve subscription:', e.message);
+              }
+            }
             await supabase.from('subscriptions').upsert({
               user_id: userId,
               stripe_customer_id: session.customer,
               stripe_subscription_id: session.subscription,
               plan,
-              status: 'active',
+              status: isTrial ? 'trialing' : 'active',
               updated_at: new Date().toISOString(),
             }, { onConflict: 'user_id' });
 
@@ -153,12 +167,21 @@ async function startServer() {
               .single();
 
             if (profile?.email) {
-              await sendPaymentConfirmation({
-                to: profile.email,
-                userName: profile.name || 'utilizador',
-                plan: plan.charAt(0).toUpperCase() + plan.slice(1),
-                amount: `€${(session.amount_total / 100).toFixed(2)}`,
-              });
+              if (isTrial) {
+                await sendPaymentConfirmation({
+                  to: profile.email,
+                  userName: profile.name || 'utilizador',
+                  plan: plan.charAt(0).toUpperCase() + plan.slice(1),
+                  amount: '€0.00 (14 dias grátis)',
+                });
+              } else {
+                await sendPaymentConfirmation({
+                  to: profile.email,
+                  userName: profile.name || 'utilizador',
+                  plan: plan.charAt(0).toUpperCase() + plan.slice(1),
+                  amount: `€${(session.amount_total / 100).toFixed(2)}`,
+                });
+              }
             }
           }
           break;

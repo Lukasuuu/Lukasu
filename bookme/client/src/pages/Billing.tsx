@@ -16,43 +16,33 @@ const STRIPE_PRICES = {
 
 const plans = [
   {
-    id: 'free',
-    name: 'Grátis',
-    price: '€0',
-    period: '/mês',
-    description: 'Para começar',
-    icon: Star,
-    color: 'border-border',
-    features: ['1 staff', 'Marcações ilimitadas', 'Email de confirmação', 'Página de booking'],
-    priceIdMonthly: '',
-    priceIdYearly: '',
-  },
-  {
     id: 'pro',
     name: 'Pro',
-    price: '€14.90',
-    priceYearly: '€149.00',
+    price: '€29',
+    priceYearly: '€290',
     period: '/mês',
     vatInfo: 'IVA incluído',
     description: 'Para crescer',
     icon: Zap,
     color: 'border-blue-500/50',
     highlighted: true,
-    features: ['5 staff', 'WhatsApp & Telegram', 'Widget embeddable', 'Lista de espera', 'Campanhas marketing'],
+    trial: '14 dias grátis',
+    features: ['Marcações ilimitadas', '5 staff', 'WhatsApp & Telegram', 'Widget embeddable', 'Lista de espera', 'Campanhas marketing', 'Suporte por email'],
     priceIdMonthly: STRIPE_PRICES.pro_monthly,
     priceIdYearly: STRIPE_PRICES.pro_yearly,
   },
   {
     id: 'business',
     name: 'Business',
-    price: '€29.90',
-    priceYearly: '€299.00',
+    price: '€59',
+    priceYearly: '€590',
     period: '/mês',
     vatInfo: 'IVA incluído',
     description: 'Para escalar',
     icon: Building2,
     color: 'border-purple-500/50',
-    features: ['Staff ilimitado', 'Ponto de Venda', 'Relatórios avançados', 'API integração', 'Suporte prioritário'],
+    trial: '14 dias grátis',
+    features: ['Tudo do plano Pro', 'Staff ilimitado', 'Ponto de Venda', 'Relatórios avançados', 'API integração', 'Suporte prioritário', 'Comissões automáticas'],
     priceIdMonthly: STRIPE_PRICES.business_monthly,
     priceIdYearly: STRIPE_PRICES.business_yearly,
   },
@@ -170,6 +160,11 @@ export default function Billing() {
                   Próxima renovação: {new Date(subscription.current_period_end).toLocaleDateString('pt-PT')}
                 </p>
               )}
+              {subscription?.status === 'trialing' && subscription?.current_period_end && (
+                <p className="text-sm text-green-400 mt-1">
+                  Período de experiência até {new Date(subscription.current_period_end).toLocaleDateString('pt-PT')}
+                </p>
+              )}
             </div>
             {plan !== 'free' && subscription?.stripe_customer_id && (
               <Button
@@ -214,7 +209,7 @@ export default function Billing() {
         </div>
 
         {/* Plan Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto">
           {plans.map((p) => {
             const Icon = p.icon;
             const isCurrent = plan === p.id;
@@ -237,6 +232,12 @@ export default function Billing() {
                   <span className="text-3xl font-bold text-white">{displayPrice}</span>
                   <span className="text-foreground/60 text-sm ml-1">{periodLabel}</span>
                 </div>
+                {p.trial && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 mb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                    <span className="text-xs text-green-400 font-medium">{p.trial}</span>
+                  </div>
+                )}
                 {p.vatInfo && <p className="text-xs text-foreground/50 mb-4">{p.vatInfo}</p>}
                 <ul className="space-y-2 mb-6 mt-4">
                   {p.features.map((f, i) => (
@@ -246,16 +247,16 @@ export default function Billing() {
                     </li>
                   ))}
                 </ul>
-                {p.id !== 'free' && !isCurrent && (
+                {!isCurrent && (
                   <Button
                     onClick={() => handleCheckout(p.id, p.priceIdMonthly, p.priceIdYearly)}
                     disabled={!!checkoutLoading || !termsAccepted || !immediateServiceAccepted}
                     className={`w-full ${p.highlighted ? 'bg-blue-500 hover:bg-blue-600' : 'bg-purple-600 hover:bg-purple-700'} text-white`}
                   >
-                    {checkoutLoading === p.id ? 'A redirecionar...' : `Upgrade para ${p.name}`}
+                    {checkoutLoading === p.id ? 'A redirecionar...' : `Experimentar ${p.name}`}
                   </Button>
                 )}
-                {isCurrent && p.id !== 'free' && (
+                {isCurrent && (
                   <Button variant="outline" className="w-full border-border" onClick={handleManageSubscription}>
                     Gerir Subscrição
                   </Button>
@@ -290,7 +291,7 @@ export default function Billing() {
               className="mt-1 accent-blue-500"
             />
             <span className="text-sm text-foreground/70">
-              Autorizo o início imediato do serviço e reconheço que perco o direito de arrependimento de 14 dias após o início da utilização, nos termos do Art. 17.º do Decreto-Lei n.º 24/2014.
+              Aceito iniciar o período de experiência de 14 dias grátis. Após este período, a subscrição será renovada automaticamente e cobrada pelo plano escolhido. Posso cancelar a qualquer momento antes do fim do trial sem qualquer custo.
             </span>
           </label>
         </div>

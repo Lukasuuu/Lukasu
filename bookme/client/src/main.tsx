@@ -4,14 +4,12 @@ import './index.css';
 
 createRoot(document.getElementById('root')!).render(<App />);
 
-// Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
+// Register Service Worker for PWA (only in production)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((reg) => {
         console.log('[BookMe] SW registered:', reg.scope);
-        // Check for updates on page load
-        reg.update();
       })
       .catch((err) => console.warn('[BookMe] SW registration failed:', err));
   });

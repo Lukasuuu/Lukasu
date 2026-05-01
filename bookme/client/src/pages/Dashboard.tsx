@@ -24,40 +24,25 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
       try {
-        // Fetch today's bookings
         const today = new Date().toISOString().split('T')[0];
-        const { data: todayBookings } = await supabase
-          .from('bookings')
-          .select('*')
-          .eq('business_id', business.id)
-          .eq('booking_date', today);
 
-        // Fetch total clients
-        const { data: clients } = await supabase
-          .from('clients')
-          .select('*')
-          .eq('business_id', business.id);
-
-        // Fetch services
-        const { data: services } = await supabase
-          .from('services')
-          .select('*')
-          .eq('business_id', business.id)
-          .eq('active', true);
-
-        // Fetch upcoming bookings
-        const { data: upcoming } = await supabase
-          .from('bookings')
-          .select(`
-            *,
-            clients(name, email, phone),
-            services(name, price),
-            staff(name)
-          `)
-          .eq('business_id', business.id)
-          .gte('booking_date', today)
-          .order('booking_date', { ascending: true })
-          .limit(5);
+        // Fetch all data in parallel
+        const [
+          { data: todayBookings },
+          { data: clients },
+          { data: services },
+          { data: upcoming },
+        ] = await Promise.all([
+          supabase.from('bookings').select('*').eq('business_id', business.id).eq('booking_date', today),
+          supabase.from('clients').select('*').eq('business_id', business.id),
+          supabase.from('services').select('*').eq('business_id', business.id).eq('active', true),
+          supabase.from('bookings')
+            .select(`*, clients(name, email, phone), services(name, price), staff(name)`)
+            .eq('business_id', business.id)
+            .gte('booking_date', today)
+            .order('booking_date', { ascending: true })
+            .limit(5),
+        ]);
 
         setStats({
           todayBookings: todayBookings?.length || 0,
