@@ -4,6 +4,7 @@ import { usePlan } from '@/hooks/usePlan';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { CreditCard, CheckCircle, AlertCircle, ExternalLink, Zap, Building2, Star } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -89,22 +90,17 @@ export default function Billing() {
 
     setCheckoutLoading(planId);
     try {
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId,
-          userId: user.id,
-          userEmail: user.email,
-          planType: planId,
-          appUrl: window.location.origin,
-        }),
+      const data = await api.createCheckoutSession({
+        priceId,
+        userId: user.id,
+        userEmail: user.email,
+        planType: planId,
+        appUrl: window.location.origin,
       });
-      const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast.error(data.error || 'Erro ao iniciar checkout');
+        toast.error('Erro ao iniciar checkout');
       }
     } catch {
       toast.error('Erro de rede. Tente novamente.');
@@ -116,15 +112,10 @@ export default function Billing() {
   const handleManageSubscription = async () => {
     if (!subscription?.stripe_customer_id) return;
     try {
-      const res = await fetch('/api/create-portal-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId: subscription.stripe_customer_id,
-          appUrl: window.location.origin,
-        }),
+      const data = await api.createPortalSession({
+        customerId: subscription.stripe_customer_id,
+        appUrl: window.location.origin,
       });
-      const data = await res.json();
       if (data.url) window.location.href = data.url;
     } catch {
       toast.error('Erro ao abrir portal de faturação');

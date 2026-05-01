@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { api } from '@/lib/api';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,19 +15,11 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        setSent(true);
-        setForm({ name: '', email: '', subject: '', message: '' });
-      } else {
-        toast.error('Erro ao enviar mensagem. Por favor, tente novamente.');
-      }
+      await api.post('/contact', form);
+      setSent(true);
+      setForm({ name: '', email: '', subject: '', message: '' });
     } catch {
-      toast.error('Erro de rede. Tente novamente.');
+      toast.error('Erro ao enviar mensagem. Por favor, tente novamente.');
     } finally {
       setLoading(false);
     }

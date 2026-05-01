@@ -33,4 +33,20 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.role, tenantId: user.tenantId };
     return { accessToken: this.jwtService.sign(payload), user };
   }
+
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        avatarUrl: true,
+        tenantId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 }

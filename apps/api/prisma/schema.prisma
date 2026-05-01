@@ -122,7 +122,7 @@ model Payment {
   amount        Decimal  @db.Decimal(10, 2)
   currency      String   @default("BRL")
   provider      String   @default("stripe")
-  providerRef   String?  @map("provider_ref")
+  providerRef   String?  @unique @map("provider_ref")
   status        String   @default("pending")
   paidAt        DateTime? @map("paid_at")
   createdAt     DateTime @default(now()) @map("created_at")

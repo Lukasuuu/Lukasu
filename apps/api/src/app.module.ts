@@ -18,6 +18,7 @@ import { AdminModule } from './admin/admin.module';
 import { SearchModule } from './search/search.module';
 import { StorageModule } from './storage/storage.module';
 import { HealthModule } from './health/health.module';
+import { ContactController } from './contact/contact.controller';
 
 @Module({
   imports: [
@@ -41,5 +42,6 @@ import { HealthModule } from './health/health.module';
     StorageModule,
     HealthModule,
   ],
+  controllers: [ContactController],
 })
 export class AppModule {}
