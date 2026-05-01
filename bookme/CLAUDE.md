@@ -40,22 +40,40 @@ Plugins Claude Code instalados: `frontend-design`, `playwright`, `typescript-lsp
 
 ---
 
-## ESTADO ATUAL AUDITADO (2026-05-01)
+## ESTADO ATUAL (2026-05-01) — AUTOPILOT EM EXECUCAO
 
-Ver auditoria completa em `docs/audit-2026-05-01.md`.
+Ver auditoria inicial em `docs/audit-2026-05-01.md`.
 
 **Stack:** React 19 + Vite + TS + Tailwind + Express + Supabase + Stripe
 **Ficheiros:** ~163 rastreados, ~160 fonte
-**Estado:** MVP funcional, gaps significativos para enterprise
+**Estado:** MVP funcional + infraestrutura + testes + compliance documentada
 
-**Gaps criticos:**
-- Sem CI/CD
-- Sem testes escritos (Vitest instalado)
-- Backend monolitico (Express.js unico ficheiro)
-- Sem ORM (usa Supabase client diretamente)
-- Sem mobile
-- Sem multi-tenant / RBAC completo
-- Sem NestJS / Prisma
+### Fases Concluidas
+| Fase | Status | PR |
+|---|---|---|
+| SETUP INICIAL | Completo | PR #2 (Draft) |
+| FASE 0 — Auditoria | Completo | PR #2 |
+| FASE 1 — Frontend Elite | Completo | PR #3 (Draft) |
+| FASE 4 — Infra/CI/CD | Completo | Em `feat/phase-5-compliance` |
+| FASE 5 — Compliance | Completo | PR #4 (Draft) |
+| FASE 6 — Testes | Completo | PR #4 |
+| FASE 7 — Documentacao | Completo | Em `feat/phase-5-compliance` |
+
+### O que foi entregue
+- **SETUP:** Husky, commitlint, lint-staged, PR template, pnpm workspaces, .editorconfig
+- **FASE 1:** i18n (pt-BR/en/es), Zustand, TanStack Query, Storybook, R3F lazy hero, motion-button, heatmap-chart
+- **FASE 4:** GitHub Actions CI/CD (ci.yml, deploy-preview.yml, deploy-prod.yml), Terraform (Vercel)
+- **FASE 5:** LGPD checklist, DPA, ROPA, SOC2 roadmap
+- **FASE 6:** Vitest config, Playwright config, testes unitarios (motion-button, uiStore), E2E tests (landing, auth)
+- **FASE 7:** README, architecture.md, runbook.md, onboarding-dev.md, launch checklist issue (#5)
+
+### Gaps remanescentes
+- FASE 2: NestJS + Prisma backend (nao iniciado)
+- FASE 3: Mobile Expo (nao iniciado)
+- Backend monolitico (ainda Express.js unico ficheiro)
+- Sem ORM (ainda usa Supabase client diretamente)
+- Lighthouse CI nao configurado
+- axe-core nao configurado
 
 **Plugins instalados:**
 frontend-design, playwright, typescript-lsp, code-review, feature-dev, session-report, plugin-dev, playground, code-simplifier
