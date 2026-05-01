@@ -1,3 +1,4 @@
 packages:
   - 'bookme'
-  # TODO: refactor into apps/web, apps/api, apps/mobile, packages/*
+  - 'apps/*'
+  - 'packages/*'
