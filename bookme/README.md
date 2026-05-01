@@ -1,6 +1,6 @@
-# BookMe — SaaS de Agendamentos
+# BookMe — Enterprise Appointment Scheduling SaaS
 
-> Plataforma completa de gestão de marcações para negócios locais.
+> Software de marcações online para salões, clínicas, barbearias, restaurantes e muito mais. Gestão completa de agendamentos, clientes, staff, pagamentos e notificações — num só lugar.
 
 ## Stack Tecnica
 
@@ -10,16 +10,15 @@
 | UI Components | shadcn/ui + Radix UI |
 | Estado | Zustand (UI) + TanStack Query (Server) |
 | 3D / Animacao | Three.js + R3F + Framer Motion |
-| Backend | Express.js + TypeScript |
-| Base de Dados | Supabase (PostgreSQL + RLS) |
-| Auth | Supabase Auth (email/senha + OAuth) |
-| Pagamentos | Stripe (Checkout + Webhooks) |
+| Backend | NestJS 11 + Prisma 6 + PostgreSQL + Redis |
+| Auth | JWT (NestJS) + Supabase Auth (OAuth legado) |
+| Pagamentos | Stripe (Checkout + Portal + Webhooks) |
 | Email | Resend API |
-| Notificacoes | Twilio (SMS) + Telegram Bot |
+| Notificacoes | Twilio (SMS) + Telegram Bot + Expo Push |
 | Calendario | Schedule-X |
-| Testes | Vitest + Playwright |
+| Testes | Vitest + Playwright (E2E) + Jest (backend) |
 | CI/CD | GitHub Actions |
-| Deploy | Vercel |
+| Deploy | Vercel (frontend) + Render/Railway (backend) |
 
 ## Como Correr Localmente
 
@@ -47,19 +46,34 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-A aplicacao abre em `http://localhost:3000`.
+A aplicacao abre em `http://localhost:5173` (Vite dev server).
 
 ### Comandos uteis
 
 ```bash
-pnpm dev          # Servidor de desenvolvimento
-pnpm build        # Build de producao
-pnpm check        # Verificacao TypeScript
-pnpm lint         # ESLint
-pnpm format       # Prettier
-pnpm test         # Testes unitarios (Vitest)
-pnpm test:e2e     # Testes E2E (Playwright)
-pnpm storybook    # Storybook (UI components)
+# Frontend
+pnpm dev            # Vite dev server (localhost:5173)
+pnpm build          # Build de producao
+pnpm check          # Verificacao TypeScript
+pnpm lint           # ESLint
+pnpm format         # Prettier
+pnpm test           # Testes unitarios (Vitest)
+pnpm test:e2e       # Testes E2E (Playwright)
+pnpm storybook      # Storybook
+
+# Backend
+pnpm --filter @bookme/api start:dev    # NestJS dev server (localhost:4000)
+pnpm --filter @bookme/api build        # Build NestJS
+pnpm --filter @bookme/api test         # Testes Jest
+pnpm --filter @bookme/api test:cov     # Cobertura Jest
+pnpm --filter @bookme/api exec prisma migrate dev
+pnpm --filter @bookme/api exec prisma generate
+pnpm --filter @bookme/api exec prisma studio
+
+# Mobile
+pnpm --filter @bookme/mobile start     # Expo dev server
+pnpm --filter @bookme/mobile ios       # Expo iOS simulator
+pnpm --filter @bookme/mobile android   # Expo Android emulator
 ```
 
 ## Estrutura do Projeto
@@ -90,27 +104,46 @@ bookme/
 └── terraform/               # Infraestrutura como codigo
 ```
 
-## Arquitetura
+## Arquitetura (Monorepo)
 
 ```
-[Browser] <-> [Vite/React] <-> [Express API] <-> [Supabase]
+bookme-repo/
+├── bookme/                  # Frontend web (React + Vite)
+│   ├── client/src/          # Componentes, páginas, hooks, stores
+│   ├── e2e/                 # Playwright E2E tests
+│   └── server/              # Express server (legado)
+├── apps/
+│   ├── api/                 # Backend NestJS + Prisma
+│   │   ├── src/             # 16 módulos (auth, bookings, payments...)
+│   │   └── prisma/          # 12 models
+│   └── mobile/              # Expo React Native
+│       ├── app/             # Expo Router v4
+│       └── src/             # Components, hooks, stores
+├── .github/workflows/       # CI/CD
+└── pnpm-workspace.yaml      # Monorepo pnpm workspaces
+```
+
+```
+[Browser] <-> [Vite/React] <-> [NestJS API] <-> [PostgreSQL + Prisma]
                                               |
                                         [Stripe]
+                                        [Redis]
                                         [Resend]
-                                        [Twilio]
 ```
 
 ## Roadmap
 
 - [x] MVP funcional (agendamentos, clientes, servicos, staff)
-- [x] Pagamentos Stripe
+- [x] Pagamentos Stripe (checkout + portal + webhooks)
 - [x] Notificacoes (email, SMS, Telegram)
 - [x] Internacionalizacao (pt-BR, en, es)
 - [x] Storybook
 - [x] Testes unitarios e E2E
-- [ ] Mobile app (Expo)
-- [ ] Multi-tenant
-- [ ] NestJS backend
+- [x] NestJS backend (16 módulos, Prisma, JWT)
+- [x] Frontend <-> Backend integration (api.ts)
+- [x] Mobile app scaffold (Expo SDK 52)
+- [ ] Backend tests 60%+
+- [ ] Prisma migrate em produção
 - [ ] SOC 2 compliance
 
 ## Licenca

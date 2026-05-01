@@ -219,6 +219,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          recharts: ['recharts'],
+          'framer-motion': ['framer-motion', 'framer-motion-3d'],
+          three: ['three', '@react-three/fiber', '@react-three/drei'],
+          radix: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+        },
+      },
+    },
   },
   server: {
     host: true,
