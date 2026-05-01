@@ -40,6 +40,28 @@ Plugins Claude Code instalados: `frontend-design`, `playwright`, `typescript-lsp
 
 ---
 
+## ESTADO ATUAL AUDITADO (2026-05-01)
+
+Ver auditoria completa em `docs/audit-2026-05-01.md`.
+
+**Stack:** React 19 + Vite + TS + Tailwind + Express + Supabase + Stripe
+**Ficheiros:** ~163 rastreados, ~160 fonte
+**Estado:** MVP funcional, gaps significativos para enterprise
+
+**Gaps criticos:**
+- Sem CI/CD
+- Sem testes escritos (Vitest instalado)
+- Backend monolitico (Express.js unico ficheiro)
+- Sem ORM (usa Supabase client diretamente)
+- Sem mobile
+- Sem multi-tenant / RBAC completo
+- Sem NestJS / Prisma
+
+**Plugins instalados:**
+frontend-design, playwright, typescript-lsp, code-review, feature-dev, session-report, plugin-dev, playground, code-simplifier
+
+---
+
 ## STACK TÉCNICA
 
 | Componente | Tecnologia |
