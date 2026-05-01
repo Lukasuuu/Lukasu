@@ -23,14 +23,14 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0",
-    "@nestjs/platform-express": "^11.0.0",
-    "@nestjs/swagger": "^11.0.0",
     "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.0",
-    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
     "@nestjs/terminus": "^11.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^6.6.0",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
@@ -44,6 +44,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.4.5",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
@@ -71,7 +72,11 @@
     "typescript": "^5.8.3"
   },
   "jest": {
-    "moduleFileExtensions": ["js", "json", "ts"],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
